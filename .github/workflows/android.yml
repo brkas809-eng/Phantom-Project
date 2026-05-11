@@ -1,36 +1,23 @@
-name: Phantom Final Protocol
+name: Phantom Stable Build 2026
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # En güncel hata veren sürüm yerine en stabil sürümü seçtik
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip build-essential git python3-setuptools \
-          libffi-dev libssl-dev python3-dev zip unzip libtool autoconf autogen \
-          pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 \
-          cmake libgomp1 libsqlite3-dev
+      # Buildozer için gerekli olan tüm araçları içeren profesyonel Action
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        with:
+          buildozer_version: master
+          command: buildozer android debug
+          repository_root: .
 
-      - name: Install Buildozer & Hack Root Check
-        run: |
-          pip3 install --user buildozer
-          # İŞTE ÇÖZÜM: Buildozer'ın içindeki root kontrol fonksiyonunu etkisiz hale getiriyoruz
-          find ~/.local -name "__init__.py" | grep buildozer | xargs sed -i 's/self.check_root()/# self.check_root()/g'
-
-      - name: Build APK (No Questions Asked)
-        run: |
-          export PATH=$PATH:~/.local/bin
-          # Root uyarısı vermeden direkt inşa başlıyor
-          buildozer android debug
-        env:
-          BUILDOZER_ALLOW_ORG_NAME_AS_DOMAIN: "1"
-
-      - name: Upload APK
+      # APK dosyasını güvenli bölgeye alıyoruz
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Phantom-APK-Final
+          name: Phantom-APK
           path: bin/*.apk

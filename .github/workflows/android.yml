@@ -1,4 +1,4 @@
-name: Phantom APK Build Final
+name: Phantom APK Build 2026 Final
 on: [push]
 
 jobs:
@@ -7,17 +7,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 2026'nın en stabil yöntemi: Hazır Docker imajı kullanmak
-      - name: Build with Buildozer
+      - name: Build with Buildozer (Force Mode)
         uses: docker://kivy/buildozer:latest
         with:
-          args: android debug
+          # 'yes' komutu ile "Emin misin?" sorularına otomatik 'y' cevabı veriyoruz
+          args: /bin/bash -c "yes | buildozer android debug"
         env:
+          # Root izni hatasını bu çevre değişkeniyle baypas ediyoruz
           BUILDOZER_ALLOW_ORG_NAME_AS_DOMAIN: "1"
+          BUILDOZER_WARN_ON_ROOT: "0"
 
-      # APK oluştuktan sonra güvenli şekilde dışarı çıkarıyoruz
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Phantom-Final-APK
+          name: Phantom-Stable-Build
           path: bin/*.apk

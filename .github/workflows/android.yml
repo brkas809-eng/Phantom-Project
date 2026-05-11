@@ -7,18 +7,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Buildozer için gerekli tüm Linux bağımlılıklarını tek seferde ve eksiksiz kuruyoruz
-      - name: System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev zlib1g-dev libssl-dev libffi-dev libgdbm-dev libncursesw5-dev libreadline-gplv2-dev libtk8.6-dev tk-dev
-          pip3 install --user --upgrade Cython==0.29.33 buildozer
-
-      # Hata veren 'Broken pipe' sorununu aşmak için buildozer'ı doğrudan terminalden çağırıyoruz
+      # 2026'nın en stabil yöntemi: Hazır Docker imajı kullanmak
       - name: Build with Buildozer
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          # Temizlik yapıp taze bir derleme başlatıyoruz
-          buildozer init
-          # Buradaki 'yes' komutu tüm lisans sorularını otomatik geçer
-          yes | buildozer -v android debug
+        uses: docker://kivy/buildozer:latest
+        with:
+          args: android debug
+        env:
+          BUILDOZER_ALLOW_ORG_NAME_AS_DOMAIN: "1"
+
+      # APK oluştuktan sonra güvenli şekilde dışarı çıkarıyoruz
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Phantom-Final-APK
+          path: bin/*.apk

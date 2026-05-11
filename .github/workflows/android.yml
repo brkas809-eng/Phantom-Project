@@ -1,0 +1,20 @@
+name: Phantom APK Build
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        with:
+          workdir: .
+          buildozer_version: master
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Phantom-APK
+          path: bin/*.apk

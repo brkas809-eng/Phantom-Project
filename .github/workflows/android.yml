@@ -1,4 +1,4 @@
-name: Phantom APK Build 2026 Final
+name: Phantom APK Build 2026 Fix
 on: [push]
 
 jobs:
@@ -7,18 +7,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build with Buildozer (Force Mode)
+      - name: Force Build with No-Root Warning
         uses: docker://kivy/buildozer:latest
         with:
-          # 'yes' komutu ile "Emin misin?" sorularına otomatik 'y' cevabı veriyoruz
-          args: /bin/bash -c "yes | buildozer android debug"
+          # Soru sormasını beklemek yerine direkt komutu basıyoruz
+          args: android debug
         env:
-          # Root izni hatasını bu çevre değişkeniyle baypas ediyoruz
+          # BU KISIM KRİTİK: Buildozer'ın soru sormasını kökten engelliyoruz
           BUILDOZER_ALLOW_ORG_NAME_AS_DOMAIN: "1"
           BUILDOZER_WARN_ON_ROOT: "0"
 
-      - name: Upload APK Artifact
+      - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
-          name: Phantom-Stable-Build
+          name: Phantom-Stable-APK
           path: bin/*.apk

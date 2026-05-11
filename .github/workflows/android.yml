@@ -7,6 +7,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Buildozer'ın izin sorunlarını aşması için çalışma alanını temizliyoruz
+      - name: Fix permissions
+        run: |
+          sudo chown -R $USER:$USER .
+
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         with:
